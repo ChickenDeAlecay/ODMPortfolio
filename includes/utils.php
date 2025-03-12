@@ -139,7 +139,15 @@ function selectAllStaff($connect)
     //
     // Make sure to ORDER BY staff.clearance_level ASC
     //
-    $staff_sql = "";
+    $staff_sql = "SELECT 
+                    staff.id, 
+                    staff.first_name, 
+                    staff.last_name, 
+                    staff.clearance_level 
+                  FROM 
+                    staff 
+                  ORDER BY 
+                    staff.clearance_level ASC";
     // ========================== /Part 6
 
     return runAndCheckSQL($connect, $staff_sql);
@@ -159,7 +167,18 @@ function selectAllJobsAndLocations($connect)
     //
     // Make sure to ORDER BY location.required_clearance_level ASC
     //
-    $job_sql = "";
+    $job_sql = "SELECT 
+                    job.id AS job_id, 
+                    job.name AS job_name, 
+                    job.radiation_exposure, 
+                    location.name AS location, 
+                    location.required_clearance_level 
+                FROM 
+                    job 
+                JOIN 
+                    location ON job.location_id = location.id 
+                ORDER BY 
+                    location.required_clearance_level ASC";
     // ========================== /Part 7
     return runAndCheckSQL($connect, $job_sql);
 }
@@ -176,7 +195,14 @@ function selectAllWeeks($connect)
     //
     // Make sure to ORDER BY weeks.id ASC
     //
-    $week_sql = "";
+    $week_sql = "SELECT 
+                    weeks.id, 
+                    weeks.week_starts, 
+                    weeks.week_ends 
+                 FROM 
+                    weeks 
+                 ORDER BY 
+                    weeks.id ASC";
     // ========================== /Part 8
     return runAndCheckSQL($connect, $week_sql);
 }
@@ -191,7 +217,13 @@ function selectAllDays($connect)
     //
     // Make sure to ORDER BY days.id ASC
     //
-    $day_sql = "";
+    $day_sql = "SELECT 
+                    days.id, 
+                    days.day 
+                FROM 
+                    days 
+                ORDER BY 
+                    days.id ASC";
     // ========================== /Part 9
     return runAndCheckSQL($connect, $day_sql);
 }
@@ -208,7 +240,15 @@ function selectASingleWorkSchedule($connect, $id)
     //
     // USE the php variable $id in the WHERE clause
     //
-    $appointed_sql = "";
+    $appointed_sql = "SELECT 
+                        work_schedule.week_id, 
+                        work_schedule.day_id, 
+                        work_schedule.job_id, 
+                        work_schedule.staff_id 
+                      FROM 
+                        work_schedule 
+                      WHERE 
+                        work_schedule.id = $id";
     // ========================== /Part 12
     return runAndCheckSQL($connect, $appointed_sql);
 }
