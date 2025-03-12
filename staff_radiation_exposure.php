@@ -45,14 +45,11 @@ $staff_id = (isset($_POST["staff_id"])) ? mysqli_real_escape_string($connect, $_
                 staff s ON ws.staff_id = s.id
             JOIN 
                 job j ON ws.job_id = j.id
-            JOIN 
-            location l ON ws.location_id = l.id
-            WHERE 
-            ws.week = '$week' 
-            AND ws.day = '$day'
             $staff_check
             GROUP BY 
             s.id
+            ORDER BY
+            exposure DESC
         ";
         // ========================== /Task 4
 
