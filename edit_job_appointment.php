@@ -23,7 +23,13 @@ if($work_week && $work_day && $work_job && $work_staff){
     // 
     // Make sure you use the $appointment_id from line 8 in your WHERE clause.
     //
-    $add_job_sql = "";
+    $add_job_sql = "UPDATE work_schedule SET 
+        week_id = '$work_week',
+        day_id = '$work_day',
+        staff_id = '$work_staff',
+        job_id = '$work_job',
+        location_id = (SELECT location_id FROM jobs WHERE id = '$work_job')
+        WHERE id = '$appointment_id'";
     // ========================== /Part 12    
 
     if(runAndCheckSQL($connect, $add_job_sql)){

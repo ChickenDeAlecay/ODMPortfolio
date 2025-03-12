@@ -8,7 +8,6 @@ include_once("includes/utils.php");
 $staff_id = (isset($_GET["id"])) ? mysqli_real_escape_string($connect, $_GET["id"]) : false;
 
 
-
 // ========================== YOUR SQL HERE
 //
 // Required SELECTS
@@ -17,7 +16,7 @@ $staff_id = (isset($_GET["id"])) ? mysqli_real_escape_string($connect, $_GET["id
 //
 // Make sure you use $staff_id variable in your WHERE clause to SELECT staff member based on ID
 //
-$staff_data_sql = "";
+$staff_data_sql = "SELECT first_name, last_name FROM staff WHERE id = '$staff_id'";
 // ========================== /YOUR SQL HERE
 
 
@@ -51,7 +50,34 @@ if($row = mysqli_fetch_assoc($result)){
         //
         // Make sure to use $staff_id to SELECT the correct staff member based on ID
         //
-        $jobs_sql = "";    
+        $jobs_sql = "SELECT 
+                work_schedule.id AS work_schedule_id,
+                staff.first_name,
+                staff.last_name,
+                staff.clearance_level AS staff_clearance_level,
+                job.name AS job_name,
+                job.radiation_exposure,
+                location.name AS location_name,
+                location.required_clearance_level,
+                weeks.id AS week_id,
+                weeks.week_starts,
+                weeks.week_ends,
+                days.day
+            FROM 
+                work_schedule
+            JOIN 
+                staff ON work_schedule.staff_id = staff.id
+            JOIN 
+                job ON work_schedule.job_id = job.id
+            JOIN 
+                location ON work_schedule.location_id = location.id
+            JOIN 
+                weeks ON work_schedule.week_id = weeks.id
+            JOIN 
+                days ON work_schedule.day_id = days.id
+            WHERE 
+                staff.id = '$staff_id'
+        ";
         // ========================== /YOUR SQL HERE
         
         $run = runAndCheckSQL($connect, $jobs_sql);
