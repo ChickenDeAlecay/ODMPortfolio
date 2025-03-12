@@ -29,7 +29,7 @@ if($work_week_id && $work_day_id && $work_job_id && $work_staff_id){
             '$work_day_id',
             '$work_staff_id',
             '$work_job_id',
-            (SELECT location_id FROM jobs WHERE id = '$work_job_id')
+            (SELECT location_id FROM job WHERE id = '$work_job_id')
         )
     ";
     // ========================== /Part 10
