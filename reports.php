@@ -13,7 +13,7 @@ include_once("includes/utils.php");
 
 <?php
 // Fetch worker job count data
-$jobs_sql = "SELECT 
+$worker_jobs_sql = "SELECT 
                 staff.first_name, 
                 staff.last_name, 
                 COUNT(work_schedule.id) AS job_count
@@ -26,7 +26,7 @@ $jobs_sql = "SELECT
              ORDER BY 
                 job_count DESC";
 
-$result = runAndCheckSQL($connect, $jobs_sql);
+$result = runAndCheckSQL($connect, $worker_jobs_sql);
 
 // Prepare data for Google Charts
 $data = [];
@@ -34,15 +34,40 @@ while ($row = mysqli_fetch_assoc($result)) {
     $data[] = [$row['first_name'] . ' ' . $row['last_name'], (int)$row['job_count']];
 }
 
+// Fetch radiation exposure data
+$radiation_sql = "SELECT 
+                    staff.first_name, 
+                    staff.last_name, 
+                    SUM(job.radiation_exposure) AS total_radiation_exposure
+                 FROM 
+                    work_schedule
+                 JOIN 
+                    staff ON work_schedule.staff_id = staff.id
+                 JOIN 
+                    job ON work_schedule.job_id = job.id
+                 GROUP BY 
+                    staff.id
+                 ORDER BY 
+                    total_radiation_exposure DESC";
+
+$radiation_result = runAndCheckSQL($connect, $radiation_sql);
+
+// Prepare data for Google Charts
+$radiation_data = [];
+while ($row = mysqli_fetch_assoc($radiation_result)) {
+    $radiation_data[] = [$row['first_name'] . ' ' . $row['last_name'], (float)$row['total_radiation_exposure']];
+}
+
 // Include Google Charts script
 ?>
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 <script type="text/javascript">
   google.charts.load('current', {'packages':['corechart', 'bar']});
-  google.charts.setOnLoadCallback(drawChart);
+  google.charts.setOnLoadCallback(drawCharts);
 
-  function drawChart() {
-    var data = google.visualization.arrayToDataTable([
+  function drawCharts() {
+    // Draw bar chart for worker jobs worked
+    var jobData = google.visualization.arrayToDataTable([
       ['Worker', 'Jobs Worked'],
       <?php
       foreach ($data as $row) {
@@ -51,18 +76,40 @@ while ($row = mysqli_fetch_assoc($result)) {
       ?>
     ]);
 
-    var options = {
+    var jobOptions = {
       title: 'Worker Jobs Worked',
       hAxis: {title: 'Jobs Worked', minValue: 0},
       vAxis: {title: 'Worker'}
     };
 
-    var chart = new google.visualization.BarChart(document.getElementById('chart_div'));
-    chart.draw(data, options);
+    var jobChart = new google.visualization.BarChart(document.getElementById('job_chart_div'));
+    jobChart.draw(jobData, jobOptions);
+
+    // Draw pie chart for radiation exposure per staff
+    var radiationData = google.visualization.arrayToDataTable([
+      ['Staff', 'Radiation Exposure'],
+      <?php
+      foreach ($radiation_data as $row) {
+          echo "['" . $row[0] . "', " . $row[1] . "],";
+      }
+      ?>
+    ]);
+
+    var radiationOptions = {
+      title: 'Radiation Exposure per Staff',
+      is3D: true
+    };
+
+    var radiationChart = new google.visualization.PieChart(document.getElementById('radiation_chart_div'));
+    radiationChart.draw(radiationData, radiationOptions);
   }
 </script>
 
-<div id="chart_div" style="width: 100%; height: 500px;"></div>
+<!-- Bar chart for worker jobs worked -->
+<div id="job_chart_div" style="width: 100%; height: 500px;"></div>
+
+<!-- Pie chart for radiation exposure per staff -->
+<div id="radiation_chart_div" style="width: 100%; height: 500px;"></div>
 
 <!-- ====================================================== -->
 <!-- PAGE CONTENT ENDS HERE -->
