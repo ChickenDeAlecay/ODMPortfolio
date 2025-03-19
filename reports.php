@@ -12,11 +12,11 @@ include_once("includes/utils.php");
 <h2>Power Station report page</h2>
 
 <?php
-// Fetch worker hours data
-$hours_sql = "SELECT 
+// Fetch worker job count data
+$jobs_sql = "SELECT 
                 staff.first_name, 
                 staff.last_name, 
-                SUM(work_schedule.id) AS job_count
+                COUNT(work_schedule.id) AS job_count
              FROM 
                 work_schedule
              JOIN 
@@ -26,12 +26,12 @@ $hours_sql = "SELECT
              ORDER BY 
                 job_count DESC";
 
-$result = runAndCheckSQL($connect, $hours_sql);
+$result = runAndCheckSQL($connect, $jobs_sql);
 
 // Prepare data for Google Charts
 $data = [];
 while ($row = mysqli_fetch_assoc($result)) {
-    $data[] = [$row['first_name'] . ' ' . $row['last_name'], (int)$row['total_hours']];
+    $data[] = [$row['first_name'] . ' ' . $row['last_name'], (int)$row['job_count']];
 }
 
 // Include Google Charts script
@@ -43,7 +43,7 @@ while ($row = mysqli_fetch_assoc($result)) {
 
   function drawChart() {
     var data = google.visualization.arrayToDataTable([
-      ['Worker', 'Hours Worked'],
+      ['Worker', 'Jobs Worked'],
       <?php
       foreach ($data as $row) {
           echo "['" . $row[0] . "', " . $row[1] . "],";
@@ -52,7 +52,7 @@ while ($row = mysqli_fetch_assoc($result)) {
     ]);
 
     var options = {
-      title: 'Worker Hours',
+      title: 'Worker Jobs Worked',
       hAxis: {title: 'Worker', titleTextStyle: {color: '#333'}},
       vAxis: {minValue: 0}
     };
