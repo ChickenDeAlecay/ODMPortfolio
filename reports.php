@@ -13,7 +13,7 @@ include_once("includes/utils.php");
 
 <?php
 // Fetch worker job count data
-$worker_jobs_sql = "SELECT 
+$jobs_sql = "SELECT 
                 staff.first_name, 
                 staff.last_name, 
                 COUNT(work_schedule.id) AS job_count
@@ -26,7 +26,7 @@ $worker_jobs_sql = "SELECT
              ORDER BY 
                 job_count DESC";
 
-$result = runAndCheckSQL($connect, $worker_jobs_sql);
+$result = runAndCheckSQL($connect, $jobs_sql);
 
 // Prepare data for Google Charts
 $data = [];
@@ -58,31 +58,11 @@ while ($row = mysqli_fetch_assoc($radiation_result)) {
     $radiation_data[] = [$row['first_name'] . ' ' . $row['last_name'], (float)$row['total_radiation_exposure']];
 }
 
-// Fetch data for staff with no work allocated
-$staff_no_work_sql = "SELECT 
-                        staff.first_name, 
-                        staff.last_name 
-                      FROM 
-                        staff 
-                      LEFT JOIN 
-                        work_schedule ON staff.id = work_schedule.staff_id 
-                      WHERE 
-                        work_schedule.staff_id IS NULL";
-
-// Execute the query
-$staff_no_work_result = runAndCheckSQL($connect, $staff_no_work_sql);
-
-// Prepare data for Google Charts
-$no_work_data = [];
-while ($row = mysqli_fetch_assoc($staff_no_work_result)) {
-    $no_work_data[] = [$row['first_name'] . ' ' . $row['last_name'], 0];
-}
-
 // Include Google Charts script
 ?>
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 <script type="text/javascript">
-  google.charts.load('current', {'packages':['corechart', 'bar', 'guage']});
+  google.charts.load('current', {'packages':['corechart', 'bar', 'gauge']});
   google.charts.setOnLoadCallback(drawCharts);
 
   function drawCharts() {
@@ -122,42 +102,30 @@ while ($row = mysqli_fetch_assoc($staff_no_work_result)) {
       yellowFrom:50, yellowTo: 75,
       minorTicks: 5
     };
-    <?php
-    }
-    ?>
 
     var gaugeChart = new google.visualization.Gauge(document.getElementById('gauge_chart_<?php echo md5($staff_name); ?>'));
     gaugeChart.draw(gaugeData, gaugeOptions);
-    
-
-    // Draw bar chart for staff with no work allocated
-    var noWorkData = google.visualization.arrayToDataTable([
-      ['Staff', 'No Work'],
-      <?php
-      foreach ($no_work_data as $row) {
-          echo "['" . $row[0] . "', " . $row[1] . "],";
-      }
-      ?>
-    ]);
-
-    var noWorkOptions = {
-      title: 'Staff with No Work Allocated',
-      hAxis: {title: 'Staff'}
-    };
-
-    var noWorkChart = new google.visualization.BarChart(document.getElementById('no_work_chart_div'));
-    noWorkChart.draw(noWorkData, noWorkOptions);
+    <?php
+    }
+    ?>
   }
 </script>
 
 <!-- Bar chart for worker jobs worked -->
 <div id="job_chart_div" style="width: 100%; height: 500px;"></div>
 
-<!-- Pie chart for radiation exposure per staff -->
-<div id="radiation_chart_div" style="width: 100%; height: 500px;"></div>
-
-<!-- Bar chart for staff with no work allocated -->
-<div id="no_work_chart_div" style="width: 100%; height: 500px;"></div>
+<!-- Gauge charts for radiation exposure per staff -->
+<?php
+foreach ($radiation_data as $row) {
+    $staff_name = $row[0];
+?>
+    <div>
+        <h3><?php echo $staff_name; ?></h3>
+        <div id="gauge_chart_<?php echo md5($staff_name); ?>" style="width: 400px; height: 120px;"></div>
+    </div>
+<?php
+}
+?>
 
 <!-- ====================================================== -->
 <!-- PAGE CONTENT ENDS HERE -->
