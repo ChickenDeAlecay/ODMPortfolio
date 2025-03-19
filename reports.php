@@ -123,12 +123,12 @@ while ($row = mysqli_fetch_assoc($staff_no_work_result)) {
     var radiationChart = new google.visualization.PieChart(document.getElementById('radiation_chart_div'));
     radiationChart.draw(radiationData, radiationOptions);
 
-        // Draw bar chart for staff with no work allocated
-        var noWorkData = google.visualization.arrayToDataTable([
-      ['Staff'],
+    // Draw bar chart for staff with no work allocated
+    var noWorkData = google.visualization.arrayToDataTable([
+      ['Staff', 'No Work'],
       <?php
       foreach ($no_work_data as $row) {
-          echo "['" . $row[0] . "'],";
+          echo "['" . $row[0] . "', " . $row[1] . "],";
       }
       ?>
     ]);
