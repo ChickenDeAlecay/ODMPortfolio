@@ -75,7 +75,7 @@ $staff_no_work_result = runAndCheckSQL($connect, $staff_no_work_sql);
 // Prepare data for Google Charts
 $no_work_data = [];
 while ($row = mysqli_fetch_assoc($staff_no_work_result)) {
-    $no_work_data[] = [$row['first_name'] . ' ' . $row['last_name']];
+    $no_work_data[] = [$row['first_name'] . ' ' . $row['last_name'], 0];
 }
 
 // Include Google Charts script
