@@ -16,7 +16,7 @@ include_once("includes/utils.php");
 $hours_sql = "SELECT 
                 staff.first_name, 
                 staff.last_name, 
-                SUM(work_schedule.id) AS job_count,
+                SUM(work_schedule.id) AS job_count
              FROM 
                 work_schedule
              JOIN 
