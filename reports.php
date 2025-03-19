@@ -19,7 +19,7 @@ $jobs_sql = "SELECT
                 COUNT(work_schedule.id) AS job_count
              FROM 
                 staff
-             JOIN 
+             LEFT JOIN 
                 work_schedule ON work_schedule.staff_id = staff.id
              GROUP BY 
                 staff.id
@@ -41,9 +41,9 @@ $radiation_sql = "SELECT
                     SUM(job.radiation_exposure) AS total_radiation_exposure
                  FROM 
                     staff
-                 JOIN 
+                 LEFT JOIN 
                     work_schedule ON work_schedule.staff_id = staff.id
-                 JOIN 
+                 LEFT JOIN 
                     job ON work_schedule.job_id = job.id
                  GROUP BY 
                     staff.id
