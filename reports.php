@@ -82,7 +82,7 @@ while ($row = mysqli_fetch_assoc($staff_no_work_result)) {
 ?>
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 <script type="text/javascript">
-  google.charts.load('current', {'packages':['corechart', 'bar']});
+  google.charts.load('current', {'packages':['corechart', 'bar', 'guage']});
   google.charts.setOnLoadCallback(drawCharts);
 
   function drawCharts() {
@@ -105,23 +105,30 @@ while ($row = mysqli_fetch_assoc($staff_no_work_result)) {
     var jobChart = new google.visualization.BarChart(document.getElementById('job_chart_div'));
     jobChart.draw(jobData, jobOptions);
 
-    // Draw pie chart for radiation exposure per staff
-    var radiationData = google.visualization.arrayToDataTable([
-      ['Staff', 'Radiation Exposure'],
-      <?php
-      foreach ($radiation_data as $row) {
-          echo "['" . $row[0] . "', " . $row[1] . "],";
-      }
-      ?>
+    // Draw gauge charts for radiation exposure per staff
+    <?php
+    foreach ($radiation_data as $row) {
+        $staff_name = $row[0];
+        $exposure = $row[1];
+    ?>
+    var gaugeData = google.visualization.arrayToDataTable([
+      ['Label', 'Value'],
+      ['Exposure', <?php echo $exposure; ?>],
     ]);
 
-    var radiationOptions = {
-      title: 'Radiation Exposure per Staff',
-      is3D: true
+    var gaugeOptions = {
+      width: 400, height: 120,
+      redFrom: 75, redTo: 100,
+      yellowFrom:50, yellowTo: 75,
+      minorTicks: 5
     };
+    <?php
+    }
+    ?>
 
-    var radiationChart = new google.visualization.PieChart(document.getElementById('radiation_chart_div'));
-    radiationChart.draw(radiationData, radiationOptions);
+    var gaugeChart = new google.visualization.Gauge(document.getElementById('gauge_chart_<?php echo md5($staff_name); ?>'));
+    gaugeChart.draw(gaugeData, gaugeOptions);
+    
 
     // Draw bar chart for staff with no work allocated
     var noWorkData = google.visualization.arrayToDataTable([
