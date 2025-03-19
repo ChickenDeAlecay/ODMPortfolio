@@ -16,7 +16,7 @@ include_once("includes/utils.php");
 $hours_sql = "SELECT 
                 staff.first_name, 
                 staff.last_name, 
-                SUM(work_schedule.hours) AS total_hours
+                SUM(work_schedule.id) AS job_count,
              FROM 
                 work_schedule
              JOIN 
@@ -24,7 +24,7 @@ $hours_sql = "SELECT
              GROUP BY 
                 staff.id
              ORDER BY 
-                total_hours DESC";
+                job_count DESC";
 
 $result = runAndCheckSQL($connect, $hours_sql);
 
