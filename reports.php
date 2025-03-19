@@ -58,6 +58,26 @@ while ($row = mysqli_fetch_assoc($radiation_result)) {
     $radiation_data[] = [$row['first_name'] . ' ' . $row['last_name'], (float)$row['total_radiation_exposure']];
 }
 
+// Fetch data for staff with no work allocated
+$staff_no_work_sql = "SELECT 
+                        staff.first_name, 
+                        staff.last_name 
+                      FROM 
+                        staff 
+                      LEFT JOIN 
+                        work_schedule ON staff.id = work_schedule.staff_id 
+                      WHERE 
+                        work_schedule.staff_id IS NULL";
+
+// Execute the query
+$staff_no_work_result = runAndCheckSQL($connect, $staff_no_work_sql);
+
+// Prepare data for Google Charts
+$no_work_data = [];
+while ($row = mysqli_fetch_assoc($staff_no_work_result)) {
+    $no_work_data[] = [$row['first_name'] . ' ' . $row['last_name']];
+}
+
 // Include Google Charts script
 ?>
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
@@ -102,6 +122,24 @@ while ($row = mysqli_fetch_assoc($radiation_result)) {
 
     var radiationChart = new google.visualization.PieChart(document.getElementById('radiation_chart_div'));
     radiationChart.draw(radiationData, radiationOptions);
+
+        // Draw bar chart for staff with no work allocated
+        var noWorkData = google.visualization.arrayToDataTable([
+      ['Staff'],
+      <?php
+      foreach ($no_work_data as $row) {
+          echo "['" . $row[0] . "'],";
+      }
+      ?>
+    ]);
+
+    var noWorkOptions = {
+      title: 'Staff with No Work Allocated',
+      hAxis: {title: 'Staff'}
+    };
+
+    var noWorkChart = new google.visualization.BarChart(document.getElementById('no_work_chart_div'));
+    noWorkChart.draw(noWorkData, noWorkOptions);
   }
 </script>
 
@@ -110,6 +148,9 @@ while ($row = mysqli_fetch_assoc($radiation_result)) {
 
 <!-- Pie chart for radiation exposure per staff -->
 <div id="radiation_chart_div" style="width: 100%; height: 500px;"></div>
+
+<!-- Bar chart for staff with no work allocated -->
+<div id="no_work_chart_div" style="width: 100%; height: 500px;"></div>
 
 <!-- ====================================================== -->
 <!-- PAGE CONTENT ENDS HERE -->
