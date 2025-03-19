@@ -38,7 +38,7 @@ while ($row = mysqli_fetch_assoc($result)) {
 ?>
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 <script type="text/javascript">
-  google.charts.load('current', {'packages':['corechart']});
+  google.charts.load('current', {'packages':['corechart', 'bar']});
   google.charts.setOnLoadCallback(drawChart);
 
   function drawChart() {
@@ -53,11 +53,11 @@ while ($row = mysqli_fetch_assoc($result)) {
 
     var options = {
       title: 'Worker Jobs Worked',
-      hAxis: {title: 'Worker', titleTextStyle: {color: '#333'}},
-      vAxis: {minValue: 0}
+      hAxis: {title: 'Jobs Worked', minValue: 0},
+      vAxis: {title: 'Worker'}
     };
 
-    var chart = new google.visualization.AreaChart(document.getElementById('chart_div'));
+    var chart = new google.visualization.BarChart(document.getElementById('chart_div'));
     chart.draw(data, options);
   }
 </script>
