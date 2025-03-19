@@ -98,8 +98,8 @@ while ($row = mysqli_fetch_assoc($radiation_result)) {
 
     var gaugeOptions = {
       width: 400, height: 120,
-      redFrom: 75, redTo: 100,
-      yellowFrom:50, yellowTo: 75,
+      redFrom: 100, redTo: 350,
+      yellowFrom:50, yellowTo: 100,
       minorTicks: 5
     };
 
