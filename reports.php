@@ -58,6 +58,27 @@ while ($row = mysqli_fetch_assoc($radiation_result)) {
     $radiation_data[] = [$row['first_name'] . ' ' . $row['last_name'], (float)$row['total_radiation_exposure']];
 }
 
+// Fetch work items per location data
+$location_sql = "SELECT 
+                    location.name AS location_name, 
+                    COUNT(work_schedule.id) AS work_count
+                 FROM 
+                    location
+                 LEFT JOIN 
+                    work_schedule ON work_schedule.location_id = location.id
+                 GROUP BY 
+                    location.id
+                 ORDER BY 
+                    work_count DESC";
+
+$location_result = runAndCheckSQL($connect, $location_sql);
+
+// Prepare data for Google Charts
+$location_data = [];
+while ($row = mysqli_fetch_assoc($location_result)) {
+    $location_data[] = [$row['location_name'], (int)$row['work_count']];
+}
+
 // Include Google Charts script
 ?>
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
@@ -110,6 +131,24 @@ while ($row = mysqli_fetch_assoc($radiation_result)) {
     <?php
     }
     ?>
+
+    // Draw pie chart for work items per location
+    var locationData = google.visualization.arrayToDataTable([
+      ['Location', 'Work Items'],
+      <?php
+      foreach ($location_data as $row) {
+          echo "['" . $row[0] . "', " . $row[1] . "],";
+      }
+      ?>
+    ]);
+
+    var locationOptions = {
+      title: 'Work Items Per Location',
+      is3D: true
+    };
+
+    var locationChart = new google.visualization.PieChart(document.getElementById('location_chart_div'));
+    locationChart.draw(locationData, locationOptions);
   }
 </script>
 
@@ -128,6 +167,9 @@ foreach ($radiation_data as $row) {
 <?php
 }
 ?>
+
+<!-- Pie chart for work items per location -->
+<div id="location_chart_div" style="width: 100%; height: 500px;"></div>
 
 <!-- ====================================================== -->
 <!-- PAGE CONTENT ENDS HERE -->
